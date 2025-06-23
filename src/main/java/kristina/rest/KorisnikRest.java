@@ -22,7 +22,7 @@ public class KorisnikRest {
     @Path("/{username}")
     @Produces(MediaType.APPLICATION_JSON)
     public Korisnik getKorisnikByUsername(@PathParam("username") String username) throws prodavnica_exception {
-        return korisnikService.findCustomer(username);
+        return korisnikService.findKorisnik(username);
     }
 
     @GET

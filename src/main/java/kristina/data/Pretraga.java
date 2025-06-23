@@ -30,19 +30,19 @@ public class Pretraga implements Serializable {
     }
 
     
-    public int getpretraga_id() {
+    public int getPretraga_id() {
         return pretraga_id;
     }
 
-    public void setpretraga_id(int pretraga_id) {
+    public void setPretraga_id(int pretraga_id) {
         this.pretraga_id = pretraga_id;
     }
 
-    public int getPodesavanje_pretrage_id() {
+    public int getPodesavanje_Pretrage_id() {
         return podesavanje_pretrage_id;
     }
 
-    public void setPodesavanje_pretrage_id(int podesavanje_pretrage_id) {
+    public void setPodesavanje_Pretrage_id(int podesavanje_pretrage_id) {
         this.podesavanje_pretrage_id = podesavanje_pretrage_id;
     }
 

@@ -29,11 +29,11 @@ public class KorisnikService {
         return korisnikDAO.getAllKorisnici();  
     }
     
-    public Korisnik findCustomer(String username) throws prodavnica_exception {
+    public Korisnik findKorisnik(String username) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
-            return korisnikDAO.find(username, con);
+            return KorisnikDao.getInstance().find(username, con);
         } catch (SQLException ex) {
             throw new prodavnica_exception("Failed to find customer with username " + username, ex);
         } finally {
@@ -41,12 +41,24 @@ public class KorisnikService {
         }
     }
     
+    public Korisnik findKorisnikId(int id) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        return KorisnikDao.getInstance().findID(id, con);
+    } catch (SQLException ex) {
+        throw new prodavnica_exception("Failed to find customer with ID " + id, ex);
+    } finally {
+        ResourcesManager.closeConnection(con);
+    }
+}
+
     public void addNewCustomer(Korisnik k) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
             con.setAutoCommit(false);
-            korisnikDAO.registracija(k, con);
+            KorisnikDao.getInstance().registracija(k, con); // ✅ ispravno
             con.commit();
         } catch (SQLException ex) {
             ResourcesManager.rollbackTransactions(con);

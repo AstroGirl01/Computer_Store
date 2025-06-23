@@ -53,5 +53,22 @@ public class ProizvodService {
             ResourcesManager.closeConnection(con);
         }
     }
+    
+    public void addNoviProizvod(Proizvod proizvod) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        con.setAutoCommit(false);
+
+        proizvodDAO.insert(proizvod, con); // Ova metoda treba da postoji u ProizvodDao
+        con.commit();
+    } catch (SQLException ex) {
+        ResourcesManager.rollbackTransactions(con);
+        throw new prodavnica_exception("Failed to add new product: " + proizvod, ex);
+    } finally {
+        ResourcesManager.closeConnection(con);
+    }
+}
+
 }
 

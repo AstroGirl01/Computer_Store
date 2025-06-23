@@ -123,6 +123,7 @@ public class ProizvodDao {
         }
     }
 
+    
     // Obriši proizvod iz baze
     public void delete(int proizvodId, Connection con) throws SQLException {
         PreparedStatement ps = null;

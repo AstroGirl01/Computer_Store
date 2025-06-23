@@ -93,7 +93,7 @@ public class KorisnikDao {
                 k = new Korisnik(
                     rs.getInt("korisnik_id"),
                     rs.getString("ime_i_prezime"),
-                    username,
+                    rs.getString("username"),
                     rs.getString("password"),
                     rs.getString("e_mail"),
                     rs.getString("datum_rodjenja"),
