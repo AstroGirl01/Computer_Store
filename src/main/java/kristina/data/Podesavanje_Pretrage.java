@@ -7,7 +7,7 @@ public class Podesavanje_Pretrage implements Serializable {
     private int podesavanje_pretrage_id;
     private long min_cena;
     private long max_cena;
-    private String tip;
+    private String vrsta_opreme;
     private String kljucna_rec;
 
     public Podesavanje_Pretrage() {}
@@ -16,14 +16,14 @@ public class Podesavanje_Pretrage implements Serializable {
         this.podesavanje_pretrage_id = podesavanje_pretrage_id;
         this.min_cena = min_cena;
         this.max_cena = max_cena;
-        this.tip = tip;
+        this.vrsta_opreme = vrsta_opreme;
         this.kljucna_rec = kljucna_rec;
     }
 
     public Podesavanje_Pretrage(long min_cena, long max_cena, String tip, String kljucna_rec) {
         this.min_cena = min_cena;
         this.max_cena = max_cena;
-        this.tip = tip;
+        this.vrsta_opreme = vrsta_opreme;
         this.kljucna_rec = kljucna_rec;
     }
 
@@ -51,19 +51,19 @@ public class Podesavanje_Pretrage implements Serializable {
         this.max_cena = max_cena;
     }
 
-    public String getTip() {
-        return tip;
+    public String getVrsta_opreme() {
+        return vrsta_opreme;
     }
 
-    public void setTip(String tip) {
-        this.tip = tip;
+    public void setVrsta_opreme(String vrsta_opreme) {
+        this.vrsta_opreme = vrsta_opreme;
     }
 
-    public String getKljucnaRec() {
+    public String getKljucna_Rec() {
         return kljucna_rec;
     }
 
-    public void setKljucnaRec(String kljucna_rec) {
+    public void setKljucna_Rec(String kljucna_rec) {
         this.kljucna_rec = kljucna_rec;
     }
 
@@ -73,7 +73,7 @@ public class Podesavanje_Pretrage implements Serializable {
                 "podesavanje_pretrage_id=" + podesavanje_pretrage_id +
                 ", min_cena=" + min_cena +
                 ", max_cena=" + max_cena +
-                ", tip='" + tip + '\'' +
+                ", vrsta_opreme='" + vrsta_opreme + '\'' +
                 ", kljucna_rec='" + kljucna_rec + '\'' +
                 '}';
     }

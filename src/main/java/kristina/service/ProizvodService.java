@@ -42,7 +42,7 @@ public class ProizvodService {
     }
 
     // Pretraga proizvoda po ID-u (za detaljan prikaz)
-    public Proizvod findProizvodId(int proizvodId) throws prodavnica_exception {
+    public Proizvod findProizvod_id(int proizvodId) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();

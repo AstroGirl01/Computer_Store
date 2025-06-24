@@ -106,14 +106,14 @@ public class KupovinaDao {
     }
 
     // Metoda za pronalaženje svih kupovina korisnika prema korisnik_id
-    public List<Kupovina> findByKorisnikId(int korisnikId) throws prodavnica_exception {
+    public List<Kupovina> findByKorisnik_id(int korisnik_id) throws prodavnica_exception {
         List<Kupovina> kupovine = new ArrayList<>();
         String sql = "SELECT * FROM kupovina WHERE korisnik_id = ?";
 
         try (Connection con = ResourcesManager.getConnection();
              PreparedStatement ps = con.prepareStatement(sql)) {
 
-            ps.setInt(1, korisnikId);
+            ps.setInt(1, korisnik_id);
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {

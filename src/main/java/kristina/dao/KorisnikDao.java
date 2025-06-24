@@ -25,7 +25,7 @@ public class KorisnikDao {
             
             while (rs.next()) {
                 Korisnik k = new Korisnik();
-                k.setKorisnikId(rs.getInt("korisnik_id"));
+                k.setKorisnik_id(rs.getInt("korisnik_id"));
                 k.setImeIPrezime(rs.getString("ime_i_prezime"));
                 k.setUsername(rs.getString("username"));
                 k.setPassword(rs.getString("password"));
@@ -107,17 +107,17 @@ public class KorisnikDao {
         return k;
     }
     
-    public Korisnik findID(int korisnikId, Connection con) throws SQLException {
+    public Korisnik findID(int korisnik_id, Connection con) throws SQLException {
         PreparedStatement ps = null;
         ResultSet rs = null;
         Korisnik k = null;
         try {
             ps = con.prepareStatement("SELECT * FROM korisnik WHERE korisnik_id = ?");
-            ps.setInt(1, korisnikId);
+            ps.setInt(1, korisnik_id);
             rs = ps.executeQuery();
             if (rs.next()) {
                 k = new Korisnik(
-                    korisnikId,
+                    korisnik_id,
                     rs.getString("ime_i_prezime"),
                     rs.getString("username"),
                     rs.getString("password"),

@@ -3,7 +3,7 @@ package kristina.data;
 import java.io.Serializable;
 
 public class Korisnik implements Serializable {
-    private int korisnikId = -1;
+    private int korisnik_id = -1;
     private String ime_i_prezime;
     private String username;
     private String password;
@@ -17,8 +17,8 @@ public class Korisnik implements Serializable {
     }
 
     
-    public Korisnik(int korisnikId, String ime_i_prezime, String username,String password, String e_mail, String datum_rodjenja, int stanje_racuna, int kolicina_potrosenog_novca) {
-        this.korisnikId = korisnikId;
+    public Korisnik(int korisnik_id, String ime_i_prezime, String username,String password, String e_mail, String datum_rodjenja, int stanje_racuna, int kolicina_potrosenog_novca) {
+        this.korisnik_id = korisnik_id;
         this.ime_i_prezime = ime_i_prezime;
         this.username = username;
         this.password = password;
@@ -40,12 +40,12 @@ public class Korisnik implements Serializable {
     }
 
    
-    public int getKorisnikId() {
-        return korisnikId;
+    public int getKorisnik_id() {
+        return korisnik_id;
     }
 
-    public void setKorisnikId(int korisnikId) {
-        this.korisnikId = korisnikId;
+    public void setKorisnik_id(int korisnik_id) {
+        this.korisnik_id = korisnik_id;
     }
 
     public String getImeIPrezime() {
@@ -108,7 +108,7 @@ public class Korisnik implements Serializable {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("korisnik{")
-          .append("korisnikId=").append(korisnikId)
+          .append("korisnik_id=").append(korisnik_id)
           .append(", ime_i_prezime='").append(ime_i_prezime).append('\'')
           .append(", username='").append(username).append('\'')
           .append(", password='").append(password).append('\'')

@@ -47,7 +47,7 @@ public class KupovinaService {
             product.setStanje_na_lageru(product.getStanje_na_lageru() - 1);
             ProizvodDao.getInstance().update(product, con);
 
-            Kupovina novaKupovina = new Kupovina(customer.getKorisnikId(), product.getProizvod_id());
+            Kupovina novaKupovina = new Kupovina(customer.getKorisnik_id(), product.getProizvod_id());
             KupovinaDao.getInstance().addKupovina(novaKupovina);
 
             con.commit();

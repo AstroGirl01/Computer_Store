@@ -30,7 +30,7 @@ public class Podesavanje_PretrageDao {
                     rs.getInt("podesavanje_pretrage_id"),
                     rs.getLong("min_cena"),
                     rs.getLong("max_cena"),
-                    rs.getString("tip"),
+                    rs.getString("vrsta_opreme"),
                     rs.getString("kljucna_rec")
                 );
             }
@@ -54,7 +54,7 @@ public class Podesavanje_PretrageDao {
                     rs.getInt("podesavanje_pretrage_id"),
                     rs.getLong("min_cena"),
                     rs.getLong("max_cena"),
-                    rs.getString("tip"),
+                    rs.getString("vrsta_opreme"),
                     rs.getString("kljucna_rec")
                 ));
             }
@@ -72,13 +72,13 @@ public class Podesavanje_PretrageDao {
 
         try {
             ps = con.prepareStatement(
-                "INSERT INTO podesavanje_pretrage (min_cena, max_cena, tip, kljucna_rec) VALUES (?, ?, ?, ?)",
+                "INSERT INTO podesavanje_pretrage (min_cena, max_cena, vrsta_opreme, kljucna_rec) VALUES (?, ?, ?, ?)",
                 Statement.RETURN_GENERATED_KEYS
             );
             ps.setLong(1, pp.getMinCena());
             ps.setLong(2, pp.getMaxCena());
-            ps.setString(3, pp.getTip());
-            ps.setString(4, pp.getKljucnaRec());
+            ps.setString(3, pp.getVrsta_opreme());
+            ps.setString(4, pp.getKljucna_Rec());
 
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();
@@ -97,12 +97,12 @@ public class Podesavanje_PretrageDao {
 
         try {
             ps = con.prepareStatement(
-                "UPDATE podesavanje_pretrage SET min_cena=?, max_cena=?, tip=?, kljucna_rec=? WHERE podesavanje_pretrage_id=?"
+                "UPDATE podesavanje_pretrage SET min_cena=?, max_cena=?, vrsta_opreme=?, kljucna_rec=? WHERE podesavanje_pretrage_id=?"
             );
             ps.setLong(1, pp.getMinCena());
             ps.setLong(2, pp.getMaxCena());
-            ps.setString(3, pp.getTip());
-            ps.setString(4, pp.getKljucnaRec());
+            ps.setString(3, pp.getVrsta_opreme());
+            ps.setString(4, pp.getKljucna_Rec());
             ps.setInt(5, pp.getPodesavanje_pretrage_id());
 
             ps.executeUpdate();

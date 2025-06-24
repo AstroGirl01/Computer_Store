@@ -26,7 +26,7 @@ public class ProizvodRest {
     @Path("/id/{proizvodId}")
     @Produces(MediaType.APPLICATION_JSON)
     public Proizvod getProizvodById(@PathParam("proizvodId") int proizvodId) throws prodavnica_exception {
-        return proizvodService.findProizvodId(proizvodId);
+        return proizvodService.findProizvod_id(proizvodId);
     }
 
     @GET

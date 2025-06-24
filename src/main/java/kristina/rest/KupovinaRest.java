@@ -25,8 +25,8 @@ public class KupovinaRest {
     @Produces(MediaType.APPLICATION_JSON)
     public Response makeKupovina(Kupovina kupovina) {
         try {
-            Korisnik korisnik = korisnikService.findKorisnikId(kupovina.getKorisnik_id());
-            Proizvod proizvod = proizvodService.findProizvodId(kupovina.getProizvod_id());
+            Korisnik korisnik = korisnikService.findKorisnik_id(kupovina.getKorisnik_id());
+            Proizvod proizvod = proizvodService.findProizvod_id(kupovina.getProizvod_id());
 
             if (korisnik == null || proizvod == null) {
                 return Response.status(Response.Status.BAD_REQUEST)

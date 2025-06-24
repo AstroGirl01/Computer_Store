@@ -22,7 +22,7 @@ public class RacunarskaOprema {
             korisnikService.addNewCustomer(noviKorisnik);
             System.out.println("Dodat je korisnik: " + noviKorisnik);
 
-            Korisnik preuzetKorisnik = korisnikService.findKorisnikId(noviKorisnik.getKorisnikId());
+            Korisnik preuzetKorisnik = korisnikService.findKorisnik_id(noviKorisnik.getKorisnik_id());
             System.out.println("Preuzet je korisnik: " + preuzetKorisnik);
 
             // --- Proizvod servis ---
@@ -33,20 +33,20 @@ public class RacunarskaOprema {
             proizvodService.addNoviProizvod(noviProizvod);
             System.out.println("Dodat proizvod: " + noviProizvod);
 
-            Proizvod preuzetProizvod = proizvodService.findProizvodId(noviProizvod.getProizvod_id());
+            Proizvod preuzetProizvod = proizvodService.findProizvod_id(noviProizvod.getProizvod_id());
             System.out.println("Preuzet proizvod: " + preuzetProizvod);
 
             // --- Kupovina servis ---
             KupovinaService kupovinaService = KupovinaService.getInstance();
             System.out.println("\n=== Operacije sa kupovinama ===");
 
-            Kupovina novaKupovina = new Kupovina(preuzetKorisnik.getKorisnikId(), preuzetProizvod.getProizvod_id());
+            Kupovina novaKupovina = new Kupovina(preuzetKorisnik.getKorisnik_id(), preuzetProizvod.getProizvod_id());
             kupovinaService.makeKupovina(preuzetKorisnik, preuzetProizvod);
             System.out.println("Kupovina uspešno evidentirana.");
 
             // --- Opcionalno brisanje (ako želiš) ---
             // proizvodService.deleteProduct(noviProizvod.getProizvod_id());
-            // korisnikService.deleteCustomer(noviKorisnik.getKorisnikId());
+            // korisnikService.deleteCustomer(noviKorisnik.getKorisnik_id());
 
         } catch (prodavnica_exception e) {
             System.err.println("Greška u aplikaciji: " + e.getMessage());

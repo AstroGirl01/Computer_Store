@@ -41,7 +41,7 @@ public class KorisnikService {
         }
     }
     
-    public Korisnik findKorisnikId(int id) throws prodavnica_exception {
+    public Korisnik findKorisnik_id(int id) throws prodavnica_exception {
     Connection con = null;
     try {
         con = ResourcesManager.getConnection();
