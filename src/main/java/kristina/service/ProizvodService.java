@@ -56,8 +56,8 @@ public class ProizvodService {
         try {
             con = ResourcesManager.getConnection();
             return ProizvodDao.getInstance().findById(proizvod_id, con);
-        } catch (SQLException ex) {
-            throw new prodavnica_exception("Failed to find product with ID " + proizvod_id, ex);
+        } catch (SQLException e) {
+            throw new prodavnica_exception("Failed to find product with ID " + proizvod_id, e);
         } finally {
             ResourcesManager.closeConnection(con);
         }
@@ -69,7 +69,8 @@ public class ProizvodService {
         con = ResourcesManager.getConnection();
         con.setAutoCommit(false);
 
-        ProizvodDao.getInstance().update(proizvod.getProizvod_id(), proizvod, con);
+        ProizvodDao.getInstance().update(proizvod, con);
+
 
         con.commit();
     } catch (SQLException e) {

@@ -38,13 +38,21 @@ public class KorisnikRest {
         return korisnikService.getAllKorisnici();
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addKorisnik(Korisnik k) throws prodavnica_exception {
-        korisnikService.addKorisnik(k);
-        return Response.ok().build();
+@POST
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public Response addKorisnik(Korisnik k) {
+    try {
+        korisnikService.addKorisnik(k);  // Ignorišeš ID
+        return Response.status(Response.Status.CREATED)
+                       .entity("Korisnik " + k.getIme_i_prezime() + " je dodat.")
+                       .build();
+    } catch (prodavnica_exception e) {
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
     }
+}
+
+
 
     @POST
     @Path("/login")

@@ -49,20 +49,24 @@ public class KorisnikService {
         }
     }
 
-    public void addKorisnik(Korisnik k) throws prodavnica_exception {
-        Connection con = null;
-        try {
-            con = ResourcesManager.getConnection();
-            con.setAutoCommit(false);
-            korisnikDAO.registracija(k, con);
-            con.commit();
-        } catch (SQLException ex) {
-            ResourcesManager.rollbackTransactions(con);
-            throw new prodavnica_exception("Failed to add new customer " + k, ex);
-        } finally {
-            ResourcesManager.closeConnection(con);
-        }
+ public int addKorisnik(Korisnik k) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        con.setAutoCommit(false);
+
+        int korisnikId = korisnikDAO.registracija(k, con); // sada metoda vraća ID
+
+        con.commit();
+        return korisnikId;
+    } catch (SQLException ex) {
+        ResourcesManager.rollbackTransactions(con);
+        throw new prodavnica_exception("Greška prilikom dodavanja korisnika: " + k, ex);
+    } finally {
+        ResourcesManager.closeConnection(con);
     }
+}
+
 
     public String login(String username, String password) throws prodavnica_exception {
         Connection con = null;

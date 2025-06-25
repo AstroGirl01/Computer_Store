@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package kristina.dao;
 
 import java.sql.Connection;
@@ -15,44 +11,75 @@ public class ResourcesManager {
 
     static {
         try {
-            Class.forName("com.mysql.jdbc.Driver");
-        } catch (Exception ex) {
-            ex.printStackTrace();
+            System.out.println("Učitavanje MySQL JDBC drajvera...");
+            Class.forName("com.mysql.cj.jdbc.Driver"); // savremenija verzija
+            System.out.println("MySQL JDBC drajver uspešno učitan.");
+        } catch (ClassNotFoundException ex) {
+            System.err.println("Greška: JDBC drajver nije pronađen.");
         }
     }
 
+    // Konekcija na bazu
     public static Connection getConnection() throws SQLException {
-        Connection con = DriverManager.getConnection("jdbc:mysql://localhost/computerstore?user=root&password=");
+        String url = "jdbc:mysql://localhost/computer_store?user=root&password=&useSSL=false&serverTimezone=UTC";
+        System.out.println("Povezivanje na bazu sa URL-om: " + url);
+        Connection con = DriverManager.getConnection(url);
+        con.setAutoCommit(false); // isključi autocommit
+        System.out.println("Konekcija uspostavljena, autocommit isključen.");
         return con;
     }
 
+    // Zatvaranje ResultSet i PreparedStatement
     public static void closeResources(ResultSet resultSet, PreparedStatement preparedStatement) throws SQLException {
         if (resultSet != null) {
-            resultSet.close();
+            try {
+                resultSet.close();
+                System.out.println("ResultSet uspešno zatvoren.");
+            } catch (SQLException e) {
+                System.err.println("Greška pri zatvaranju ResultSet-a:");
+            }
         }
         if (preparedStatement != null) {
-            preparedStatement.close();
+            try {
+                preparedStatement.close();
+                System.out.println("PreparedStatement uspešno zatvoren.");
+            } catch (SQLException e) {
+                System.err.println("Greška pri zatvaranju PreparedStatement-a:");
+            }
         }
     }
 
+    // Zatvaranje konekcije
     public static void closeConnection(Connection con) throws prodavnica_exception {
         if (con != null) {
             try {
                 con.close();
+                System.out.println("Konekcija uspešno zatvorena.");
             } catch (SQLException ex) {
-                throw new prodavnica_exception("Failed to close database connection.", ex);
+                throw new prodavnica_exception("Neuspešno zatvaranje konekcije sa bazom.", ex);
             }
         }
     }
 
+    // Rollback transakcije
     public static void rollbackTransactions(Connection con) throws prodavnica_exception {
         if (con != null) {
             try {
                 con.rollback();
+                System.out.println("Transakcije uspešno rollback-ovane.");
             } catch (SQLException ex) {
-                throw new prodavnica_exception("Failed to rollback database transactions.", ex);
+                throw new prodavnica_exception("Neuspešan rollback transakcije.", ex);
             }
         }
     }
-}
 
+    // Test konekcije
+    public static void main(String[] args) {
+        try (Connection con = getConnection()) {
+            System.out.println("Test konekcije uspešan!");
+            System.out.println("Autocommit status: " + con.getAutoCommit());
+        } catch (SQLException | RuntimeException e) {
+            System.err.println("Neuspešno povezivanje sa bazom:");
+        }
+    }
+}

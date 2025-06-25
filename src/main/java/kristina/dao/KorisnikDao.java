@@ -41,19 +41,37 @@ public class KorisnikDao {
         return korisnici;
     }
 
-    public void registracija(Korisnik k, Connection con) throws SQLException {
-        String sql = "INSERT INTO korisnik(ime_i_prezime, username, password, e_mail, datum_rodjenja, stanje_racuna, kolicina_potrosenog_novca) VALUES(?,?,?,?,?,?,?)";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, k.getIme_i_prezime());
-            ps.setString(2, k.getUsername());
-            ps.setString(3, k.getPassword());
-            ps.setString(4, k.getE_mail());
-            ps.setString(5, k.getDatum_rodjenja());
-            ps.setInt(6, k.getStanje_racuna());
-            ps.setInt(7, k.getKolicina_potrosenog_novca());
-            ps.executeUpdate();
+    public int registracija(Korisnik k, Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    int id = -1;
+
+    try {
+        String sql = "INSERT INTO korisnik (ime_i_prezime, username, password, e_mail, datum_rodjenja, stanje_racuna, kolicina_potrosenog_novca) " +
+                     "VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS);
+        ps.setString(1, k.getIme_i_prezime());
+        ps.setString(2, k.getUsername());
+        ps.setString(3, k.getPassword());
+        ps.setString(4, k.getE_mail());
+        ps.setString(5, k.getDatum_rodjenja());
+        ps.setInt(6, k.getStanje_racuna());
+        ps.setInt(7, k.getKolicina_potrosenog_novca());
+
+        ps.executeUpdate();
+
+        rs = ps.getGeneratedKeys();
+        if (rs.next()) {
+            id = rs.getInt(1);
         }
+    } finally {
+        ResourcesManager.closeResources(rs, ps);
     }
+
+    return id;
+}
+
 
     public String login(String username, String password, Connection con) throws SQLException {
         String sql = "SELECT ime_i_prezime FROM korisnik WHERE username = ? AND password = ?";
@@ -91,27 +109,32 @@ public class KorisnikDao {
         return null;
     }
 
-    public Korisnik findById(int korisnik_id, Connection con) throws SQLException {
-        String sql = "SELECT * FROM korisnik WHERE korisnik_id = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, korisnik_id);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new Korisnik(
-                        korisnik_id,
-                        rs.getString("ime_i_prezime"),
-                        rs.getString("username"),
-                        rs.getString("password"),
-                        rs.getString("e_mail"),
-                        rs.getString("datum_rodjenja"),
-                        rs.getInt("stanje_racuna"),
-                        rs.getInt("kolicina_potrosenog_novca")
-                    );
-                }
-            }
+   public Korisnik findById(int korisnik_id, Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    Korisnik korisnik = null;
+    try {
+        ps = con.prepareStatement("SELECT * FROM korisnik WHERE korisnik_id = ?");
+        ps.setInt(1, korisnik_id);
+        rs = ps.executeQuery();
+        if (rs.next()) {
+            korisnik = new Korisnik(
+                rs.getInt("korisnik_id"),
+                rs.getString("ime_i_prezime"),
+                rs.getString("username"),
+                rs.getString("password"),
+                rs.getString("e_mail"),
+                rs.getString("datum_rodjenja"),
+                rs.getInt("stanje_racuna"),
+                rs.getInt("kolicina_potrosenog_novca")
+            );
         }
-        return null;
+    } finally {
+        ResourcesManager.closeResources(rs, ps);
     }
+    return korisnik;
+}
+
 
 public void updateAllFields(String username, Korisnik noviPodaci, Connection con) throws SQLException {
     PreparedStatement ps = null;
@@ -142,14 +165,26 @@ public void updateAllFields(String username, Korisnik noviPodaci, Connection con
     }
      
 
-    public void updateKorisnik(Korisnik customer, Connection con) throws SQLException {
-        String sql = "UPDATE korisnik SET stanje_racuna = ? WHERE username = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, customer.getStanje_racuna());
-            ps.setString(2, customer.getUsername());
-            ps.executeUpdate();
-        }
+ public void update(Korisnik customer, Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    try {
+        ps = con.prepareStatement(
+            "UPDATE korisnik SET ime_i_prezime = ?, username = ?, password = ?, e_mail = ?, datum_rodjenja = ?, stanje_racuna = ?, kolicina_potrosenog_novca = ? WHERE korisnik_id = ?"
+        );
+        ps.setString(1, customer.getIme_i_prezime());
+        ps.setString(2, customer.getUsername());
+        ps.setString(3, customer.getPassword());
+        ps.setString(4, customer.getE_mail());
+        ps.setString(5, customer.getDatum_rodjenja());
+        ps.setInt(6, customer.getStanje_racuna());
+        ps.setInt(7, customer.getKolicina_potrosenog_novca());
+        ps.setInt(8, customer.getKorisnik_id());
+        ps.executeUpdate();
+    } finally {
+        ResourcesManager.closeResources(null, ps);
     }
+}
+
     
   
 

@@ -79,15 +79,15 @@ public class KupovinaService {
         // Umanji iznos na računu korisnika
         int novoStanje = korisnik.getStanje_racuna() - proizvod.getCena();
         korisnik.setStanje_racuna(novoStanje);
-        KorisnikDao.getInstance().updateKorisnik(korisnik, con);
+        KorisnikDao.getInstance().update(korisnik, con);
 
         // Umanji količinu proizvoda na lageru
         int novaKolicina = proizvod.getStanje_na_lageru() - 1;
         proizvod.setStanje_na_lageru(novaKolicina);
-        ProizvodDao.getInstance().update(proizvod.getProizvod_id(), proizvod, con);
+        ProizvodDao.getInstance().update(proizvod, con);
 
         // Ubaci kupovinu u bazu
-        int kupovina_id = KupovinaDao.getInstance().update(kupovina, con);
+        int kupovina_id = KupovinaDao.getInstance().insert(kupovina, con);
 
         // Potvrdi transakciju
         con.commit();

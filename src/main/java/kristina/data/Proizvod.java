@@ -5,10 +5,8 @@ import java.util.List;
 
 public class Proizvod implements Serializable {
 
-    public static List<Proizvod> getAllProizvodi() {
-        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
-    }
-    private int proizvod_id = -1;
+    
+    private int proizvod_id;
     private String naziv;
     private int cena;
     private String vrsta_opreme;

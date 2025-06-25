@@ -57,7 +57,7 @@ public class ProizvodDao {
             if (rs.next()) {
                 p = new Proizvod(
                     rs.getInt("proizvod_id"),
-                    naziv,
+                    rs.getString("naziv"),
                     rs.getInt("cena"),
                     rs.getString("vrsta_opreme"),
                     rs.getInt("stanje_na_lageru")
@@ -94,23 +94,29 @@ public class ProizvodDao {
     }
 
     // Update proizvoda (npr. stanje na lageru)
-    public void update(int proizvod_id, Proizvod proizvod, Connection con) throws prodavnica_exception {
-    String sql = "UPDATE proizvod SET naziv = ?, cena = ?, vrsta_opreme = ?, stanje_na_lageru = ? WHERE proizvod_id = ?";
-    try (PreparedStatement ps = con.prepareStatement(sql)) {
+    public void update(Proizvod proizvod, Connection con) throws prodavnica_exception, SQLException {
+    PreparedStatement ps = null;
+    try {
+        ps = con.prepareStatement(
+            "UPDATE proizvod SET naziv = ?, cena = ?, vrsta_opreme = ?, stanje_na_lageru = ? WHERE proizvod_id = ?"
+        );
         ps.setString(1, proizvod.getNaziv());
         ps.setInt(2, proizvod.getCena());
         ps.setString(3, proizvod.getVrsta_opreme());
         ps.setInt(4, proizvod.getStanje_na_lageru());
-        ps.setInt(5, proizvod_id);
+        ps.setInt(5, proizvod.getProizvod_id());
 
         int affectedRows = ps.executeUpdate();
         if (affectedRows == 0) {
-            throw new prodavnica_exception("Proizvod sa ID " + proizvod_id + " ne postoji.");
+            throw new prodavnica_exception("Proizvod sa ID " + proizvod.getProizvod_id() + " ne postoji.");
         }
     } catch (SQLException e) {
         throw new prodavnica_exception("Greška prilikom ažuriranja proizvoda", e);
+    } finally {
+        ResourcesManager.closeResources(null, ps);
     }
 }
+
 
 
   // Ubaci novi proizvod u bazu i vrati generisani ID

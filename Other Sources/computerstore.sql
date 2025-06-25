@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 24, 2025 at 05:19 PM
+-- Generation Time: Jun 25, 2025 at 09:33 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -18,7 +18,7 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `computerstore`
+-- Database: `computer_store`
 --
 
 -- --------------------------------------------------------
@@ -84,8 +84,8 @@ CREATE TABLE `podesavanje_pretrage` (
 --
 
 INSERT INTO `podesavanje_pretrage` (`podesavanje_pretrage_id`, `min_cena`, `max_cena`, `vrsta_opreme`, `kljucna_rec`) VALUES
-(1, 100, 2000, 'Graficke kartice', 'RTX'),
-(2, 500, 1500, 'Periferija', 'tastatura'),
+(1, 100, 2000, 'hardver', 'mis'),
+(2, 500, 1500, 'hardver', 'tastatura'),
 (3, 50, 300, 'Oprema za snimanje', 'mikrofon'),
 (4, 1000, 2500, 'Hardver', 'monitor');
 
@@ -128,8 +128,11 @@ CREATE TABLE `proizvod` (
 --
 
 INSERT INTO `proizvod` (`proizvod_id`, `naziv`, `cena`, `vrsta_opreme`, `stanje_na_lageru`) VALUES
-(1, 'Grafička kartica RTX 4060', 1200, 'Grafičke kartice', 10),
-(2, 'Monitor', 300, 'Hardver', 12);
+(1, 'Mis', 200, 'Hardver', 10),
+(2, 'Monitor', 300, 'Hardver', 12),
+(3, 'antivirus', 300, 'softver', 3),
+(4, 'zvucnik', 700, 'audio', 14),
+(5, 'mikrofon', 600, 'oprema za snimanje', 5);
 
 --
 -- Indexes for dumped tables
@@ -201,7 +204,7 @@ ALTER TABLE `pretraga`
 -- AUTO_INCREMENT for table `proizvod`
 --
 ALTER TABLE `proizvod`
-  MODIFY `proizvod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `proizvod_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 
 --
 -- Constraints for dumped tables

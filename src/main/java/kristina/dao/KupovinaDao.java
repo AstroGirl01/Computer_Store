@@ -127,37 +127,44 @@ public List<Kupovina> findAllKupovine(Connection con) throws SQLException, proda
         }
     }
 
-  /*  // Ažurira postojeću kupovinu
-   public int insert(Kupovina kupovina, Connection con) throws SQLException {
-    String sql = "INSERT INTO kupovina (korisnik_id, proizvod_id) VALUES (?, ?)";
-    try (PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-        ps.setInt(1, kupovina.getKorisnik());
-        ps.setInt(2, kupovina.getProizvod());
+  public int insert(Kupovina kupovina, Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    ResultSet rs = null;
+    int id = -1;
+    try {
+        ps = con.prepareStatement(
+            "INSERT INTO kupovina (korisnik_id, proizvod_id) VALUES (?, ?)",
+            Statement.RETURN_GENERATED_KEYS
+        );
+        ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
+        ps.setInt(2, kupovina.getProizvod().getProizvod_id());
         ps.executeUpdate();
 
-        ResultSet rs = ps.getGeneratedKeys();
+        rs = ps.getGeneratedKeys();
         if (rs.next()) {
-            return rs.getInt(1);
-        } else {
-            throw new SQLException("Nije moguće dobiti ID kreirane kupovine.");
+            id = rs.getInt(1);
         }
+    } finally {
+        ResourcesManager.closeResources(rs, ps);
     }
-}*/
-public int update(Kupovina kupovina, Connection con) throws SQLException {
-    String sql = "UPDATE kupovina SET korisnik_id = ?, proizvod_id = ? WHERE kupovina_id = ?";
-    try (PreparedStatement ps = con.prepareStatement(sql)) {
+    return id;
+}
+
+public void update(Kupovina kupovina, Connection con) throws SQLException {
+    PreparedStatement ps = null;
+    try {
+        ps = con.prepareStatement(
+            "UPDATE kupovina SET korisnik_id = ?, proizvod_id = ? WHERE kupovina_id = ?"
+        );
         ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
         ps.setInt(2, kupovina.getProizvod().getProizvod_id());
         ps.setInt(3, kupovina.getKupovina_id());
-        int rowsAffected = ps.executeUpdate();
-
-        if (rowsAffected > 0) {
-            return kupovina.getKupovina_id(); // vraća ID ako je uspešno ažurirano
-        } else {
-            throw new SQLException("Update failed, no rows affected.");
-        }
+        ps.executeUpdate();
+    } finally {
+        ResourcesManager.closeResources(null, ps);
     }
 }
+
 
 
 

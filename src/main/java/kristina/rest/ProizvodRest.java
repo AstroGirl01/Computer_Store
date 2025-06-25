@@ -31,11 +31,6 @@ public class ProizvodRest {
   
     // GET proizvod po ID
 
-    /**
-     *
-     * @param id
-     * @return
-     */
     @GET
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)

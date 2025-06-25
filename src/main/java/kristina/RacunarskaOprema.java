@@ -20,7 +20,8 @@ public class RacunarskaOprema {
 
             Korisnik noviKorisnik = new Korisnik("Marko Markovic", "marko", "marko", "marko@example.com", "1990-01-01", 1000, 0);
             korisnikService.addKorisnik(noviKorisnik);
-            System.out.println("Dodat je korisnik: " + noviKorisnik);
+            System.out.println("Dodat je korisnik: " + noviKorisnik.getIme_i_prezime());
+              
 
             Korisnik preuzetKorisnik = korisnikService.findKorisnik_id(noviKorisnik.getKorisnik_id());
             System.out.println("Preuzet je korisnik: " + preuzetKorisnik);
