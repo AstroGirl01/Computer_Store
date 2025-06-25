@@ -1,45 +1,90 @@
 package kristina.rest;
 
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import kristina.data.Kupovina;
+import kristina.data.Korisnik;
+import kristina.data.Proizvod;
+
+import kristina.exception.prodavnica_exception;
+import kristina.service.KupovinaService;
+
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import kristina.data.Korisnik;
-import kristina.data.Kupovina;
-import kristina.data.Proizvod;
-import kristina.service.KorisnikService;
-import kristina.service.KupovinaService;
-import kristina.service.ProizvodService;
+import java.util.List;
 
-@Path("kupovina")
+@Path("/kupovina")
 public class KupovinaRest {
 
-    private final KupovinaService kupovinaService = KupovinaService.getInstance();
-    private final KorisnikService korisnikService = KorisnikService.getInstance();
-    private final ProizvodService proizvodService = ProizvodService.getInstance();
+    @GET
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getAllKupovine() {
+        try {
+            List<Kupovina> kupovine = KupovinaService.getInstance().getAllKupovine();
+            return Response.ok(kupovine).build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Došlo je do neočekivane greške.").build();
+        }
+    }
 
-    @POST
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getKupovinaById(@PathParam("id") int id) {
+        try {
+            Kupovina kupovina = KupovinaService.getInstance().getKupovinaById(id);
+            return Response.ok(kupovina).build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Neočekivana greška.").build();
+        }
+    }
+
+        @POST
+     @Consumes(MediaType.APPLICATION_JSON)
+     @Produces(MediaType.APPLICATION_JSON)
+     public Response addKupovina(Kupovina kupovina) {
+         try {
+             int newId = KupovinaService.getInstance().addKupovina(kupovina);
+             return Response.status(Response.Status.CREATED)
+                            .entity("Kupovina kreirana sa ID " + newId)
+                            .build();
+         } catch (prodavnica_exception e) {
+             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                            .entity("Neočekivana greška pri kreiranju kupovine.")
+                            .build();
+         }
+     }
+
+    @PUT
+    @Path("/{id}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Response makeKupovina(Kupovina kupovina) {
+    public Response updateKupovina(@PathParam("id") int id, Kupovina kupovina) {
         try {
-            Korisnik korisnik = korisnikService.findKorisnik_id(kupovina.getKorisnik_id());
-            Proizvod proizvod = proizvodService.findProizvod_id(kupovina.getProizvod_id());
-
-            if (korisnik == null || proizvod == null) {
-                return Response.status(Response.Status.BAD_REQUEST)
-                               .entity("Nevalidan korisnik ili proizvod.")
-                               .build();
-            }
-
-            kupovinaService.makeKupovina(korisnik, proizvod);
-            return Response.ok().build();
+            kupovina.setKupovina_id(id);
+            KupovinaService.getInstance().updateKupovina(kupovina);
+            return Response.ok("Kupovina sa ID " + id + " je ažurirana.").build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
         } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                           .entity("Došlo je do greške na serveru.")
-                           .build();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Neočekivana greška.").build();
+        }
+    }
+
+    @DELETE
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response deleteKupovina(@PathParam("id") int id) {
+        try {
+            KupovinaService.getInstance().deleteKupovina(id);
+            return Response.ok("Kupovina sa ID " + id + " je obrisana.").build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Neočekivana greška.").build();
         }
     }
 }

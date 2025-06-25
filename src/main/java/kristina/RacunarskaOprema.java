@@ -18,8 +18,8 @@ public class RacunarskaOprema {
             KorisnikService korisnikService = KorisnikService.getInstance();
             System.out.println("\n=== Operacije sa korisnicima ===");
 
-            Korisnik noviKorisnik = new Korisnik("Marko Markovic", "marko123", "sifra123", "marko@example.com", "1990-01-03", 10000, 5000);
-            korisnikService.addNewCustomer(noviKorisnik);
+            Korisnik noviKorisnik = new Korisnik("Marko Markovic", "marko", "marko", "marko@example.com", "1990-01-01", 1000, 0);
+            korisnikService.addKorisnik(noviKorisnik);
             System.out.println("Dodat je korisnik: " + noviKorisnik);
 
             Korisnik preuzetKorisnik = korisnikService.findKorisnik_id(noviKorisnik.getKorisnik_id());
@@ -40,8 +40,9 @@ public class RacunarskaOprema {
             KupovinaService kupovinaService = KupovinaService.getInstance();
             System.out.println("\n=== Operacije sa kupovinama ===");
 
-            Kupovina novaKupovina = new Kupovina(preuzetKorisnik.getKorisnik_id(), preuzetProizvod.getProizvod_id());
-            kupovinaService.makeKupovina(preuzetKorisnik, preuzetProizvod);
+           Kupovina novaKupovina = new Kupovina(preuzetKorisnik, preuzetProizvod);
+           int newId = kupovinaService.addKupovina(novaKupovina);
+
             System.out.println("Kupovina uspešno evidentirana.");
 
             // --- Opcionalno brisanje (ako želiš) ---

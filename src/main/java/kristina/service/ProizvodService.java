@@ -24,9 +24,18 @@ public class ProizvodService {
     }
 
     // Metoda koja vraća sve proizvode
-    public List<Proizvod> getAllProizvodi() throws prodavnica_exception {
-        return proizvodDAO.getAllProizvodi();
+   public List<Proizvod> findAllProizvodi() throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        return ProizvodDao.getInstance().findAllProizvodi(con);
+    } catch (SQLException e) {
+        throw new prodavnica_exception("Failed to retrieve all products.", e);
+    } finally {
+        ResourcesManager.closeConnection(con);
     }
+}
+
     
     // Pretraga proizvoda po nazivu
     public Proizvod findProizvod(String naziv) throws prodavnica_exception {
@@ -42,31 +51,60 @@ public class ProizvodService {
     }
 
     // Pretraga proizvoda po ID-u (za detaljan prikaz)
-    public Proizvod findProizvod_id(int proizvodId) throws prodavnica_exception {
+    public Proizvod findProizvod_id(int proizvod_id) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
-            return ProizvodDao.getInstance().findId(proizvodId, con);
+            return ProizvodDao.getInstance().findById(proizvod_id, con);
         } catch (SQLException ex) {
-            throw new prodavnica_exception("Failed to find product with ID " + proizvodId, ex);
+            throw new prodavnica_exception("Failed to find product with ID " + proizvod_id, ex);
         } finally {
             ResourcesManager.closeConnection(con);
         }
     }
     
-    public void addNoviProizvod(Proizvod proizvod) throws prodavnica_exception {
+    public void updateProizvod(Proizvod proizvod) throws prodavnica_exception {
     Connection con = null;
     try {
         con = ResourcesManager.getConnection();
         con.setAutoCommit(false);
 
-        proizvodDAO.insert(proizvod, con); // Ova metoda treba da postoji u ProizvodDao
+        ProizvodDao.getInstance().update(proizvod.getProizvod_id(), proizvod, con);
+
         con.commit();
-    } catch (SQLException ex) {
+    } catch (SQLException e) {
         ResourcesManager.rollbackTransactions(con);
-        throw new prodavnica_exception("Failed to add new product: " + proizvod, ex);
+        throw new prodavnica_exception("Neuspešno ažuriranje proizvoda sa ID " + proizvod.getProizvod_id(), e);
     } finally {
         ResourcesManager.closeConnection(con);
+    }
+}
+
+    public int addNoviProizvod(Proizvod proizvod) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        con.setAutoCommit(false);
+
+        int noviId = ProizvodDao.getInstance().insert(proizvod, con);
+
+        con.commit();
+
+        return noviId;
+    } catch (SQLException e) {
+        ResourcesManager.rollbackTransactions(con);
+        throw new prodavnica_exception("Greška prilikom dodavanja proizvoda", e);
+    } finally {
+        ResourcesManager.closeConnection(con);
+    }
+}
+
+
+    public void deleteProizvodByName(String naziv) throws prodavnica_exception {
+    try (Connection con = ResourcesManager.getConnection()) {
+        proizvodDAO.deleteByName(naziv, con);
+    } catch (Exception e) {
+        throw new prodavnica_exception("Greška prilikom brisanja proizvoda po nazivu: " + e.getMessage(), e);
     }
 }
 

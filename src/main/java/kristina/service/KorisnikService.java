@@ -10,14 +10,10 @@ import kristina.exception.prodavnica_exception;
 import java.util.List;
 import kristina.dao.ResourcesManager;
 
-/**
- *
- * @author Kiki
- */
 public class KorisnikService {
-    
+
     private static final KorisnikService instance = new KorisnikService();
-    private final KorisnikDao korisnikDAO = KorisnikDao.getInstance(); 
+    private final KorisnikDao korisnikDAO = KorisnikDao.getInstance();
 
     private KorisnikService() {}
 
@@ -28,37 +24,37 @@ public class KorisnikService {
     public List<Korisnik> getAllKorisnici() throws prodavnica_exception {
         return korisnikDAO.getAllKorisnici();  
     }
-    
+
     public Korisnik findKorisnik(String username) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
-            return KorisnikDao.getInstance().find(username, con);
+            return korisnikDAO.find(username, con);
         } catch (SQLException ex) {
             throw new prodavnica_exception("Failed to find customer with username " + username, ex);
         } finally {
             ResourcesManager.closeConnection(con);
         }
     }
-    
-    public Korisnik findKorisnik_id(int id) throws prodavnica_exception {
-    Connection con = null;
-    try {
-        con = ResourcesManager.getConnection();
-        return KorisnikDao.getInstance().findID(id, con);
-    } catch (SQLException ex) {
-        throw new prodavnica_exception("Failed to find customer with ID " + id, ex);
-    } finally {
-        ResourcesManager.closeConnection(con);
-    }
-}
 
-    public void addNewCustomer(Korisnik k) throws prodavnica_exception {
+    public Korisnik findKorisnik_id(int id) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            return korisnikDAO.findById(id, con);
+        } catch (SQLException ex) {
+            throw new prodavnica_exception("Failed to find customer with ID " + id, ex);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
+    }
+
+    public void addKorisnik(Korisnik k) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
             con.setAutoCommit(false);
-            KorisnikDao.getInstance().registracija(k, con); // ✅ ispravno
+            korisnikDAO.registracija(k, con);
             con.commit();
         } catch (SQLException ex) {
             ResourcesManager.rollbackTransactions(con);
@@ -67,37 +63,58 @@ public class KorisnikService {
             ResourcesManager.closeConnection(con);
         }
     }
-    
+
     public String login(String username, String password) throws prodavnica_exception {
-    Connection con = null;
-  try {
-      con = ResourcesManager.getConnection();
-      return KorisnikDao.getInstance().login(username, password, con);
-  } catch (SQLException ex) {
-      throw new prodavnica_exception("Prijavljivanje nije uspesno za korisnika " + username, ex);
-  } finally {
-      ResourcesManager.closeConnection(con);
-  }
-
-    }
-    
-    public String login(String username, String password, Connection con) throws SQLException {
-    PreparedStatement preparedStatement = null;
-    ResultSet resultSet = null;
-    try {
-        preparedStatement = con.prepareStatement("SELECT ime_i_prezime FROM korisnik WHERE username = ? AND password = ?");
-        preparedStatement.setString(1, username);
-        preparedStatement.setString(2, password);
-        resultSet = preparedStatement.executeQuery();
-        if (resultSet.next()) {
-            String imeIPrezime = resultSet.getString("ime_i_prezime");
-            return "Dobrodošao u najjaču računarsku prodavnicu " + imeIPrezime;
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            return korisnikDAO.login(username, password, con);
+        } catch (SQLException ex) {
+            throw new prodavnica_exception("Prijavljivanje nije uspesno za korisnika " + username, ex);
+        } finally {
+            ResourcesManager.closeConnection(con);
         }
-        return null;  // ako ne postoji takav korisnik
-    } finally {
-        ResourcesManager.closeResources(resultSet, preparedStatement);
+    }
+
+    public String login(String username, String password, Connection con) throws SQLException {
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        try {
+            preparedStatement = con.prepareStatement("SELECT ime_i_prezime FROM korisnik WHERE username = ? AND password = ?");
+            preparedStatement.setString(1, username);
+            preparedStatement.setString(2, password);
+            resultSet = preparedStatement.executeQuery();
+            if (resultSet.next()) {
+                String imeIPrezime = resultSet.getString("ime_i_prezime");
+                return "Dobrodošao u najjaču računarsku prodavnicu " + imeIPrezime;
+            }
+            return null;
+        } finally {
+            ResourcesManager.closeResources(resultSet, preparedStatement);
+        }
+    }
+
+    public void updateKorisnik(Korisnik korisnik) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            con.setAutoCommit(false);
+        korisnikDAO.updateAllFields(korisnik.getUsername(), korisnik, con);
+            con.commit();
+        } catch (SQLException ex) {
+            ResourcesManager.rollbackTransactions(con);
+            throw new prodavnica_exception("Greška prilikom ažuriranja korisnika sa ID " + korisnik.getKorisnik_id(), ex);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
+    }
+
+public void deleteKorisnik(String username) throws prodavnica_exception {
+    try (Connection con = ResourcesManager.getConnection()) {
+        KorisnikDao.getInstance().deleteByUsername(username, con);
+    } catch (SQLException e) {
+        throw new prodavnica_exception("Greška prilikom brisanja korisnika", e);
     }
 }
 
-}
-
+}        

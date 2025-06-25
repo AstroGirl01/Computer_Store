@@ -1,15 +1,17 @@
 package kristina.service;
 
-import java.sql.Connection;
-import java.sql.SQLException;
-import kristina.dao.ResourcesManager;
+import kristina.dao.KupovinaDao;
 import kristina.dao.KorisnikDao;
 import kristina.dao.ProizvodDao;
-import kristina.dao.KupovinaDao;
+import kristina.dao.ResourcesManager;
+import kristina.data.Kupovina;
 import kristina.data.Korisnik;
 import kristina.data.Proizvod;
-import kristina.data.Kupovina;
 import kristina.exception.prodavnica_exception;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
 
 public class KupovinaService {
 
@@ -21,42 +23,118 @@ public class KupovinaService {
         return instance;
     }
 
-    public void makeKupovina(Korisnik customer, Proizvod product) throws prodavnica_exception {
+   public Kupovina getKupovinaById(int kupovina_id) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        return KupovinaDao.getInstance().findById(kupovina_id, con);
+    } catch (SQLException e) {
+        throw new prodavnica_exception("Neuspešno dohvaćanje kupovine sa ID " + kupovina_id, e);
+    } finally {
+        ResourcesManager.closeConnection(con);
+    }
+}
+
+
+    public List<Kupovina> getAllKupovine() throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            return KupovinaDao.getInstance().findAllKupovine(con);
+        } catch (SQLException e) {
+            throw new prodavnica_exception("Neuspešno dohvatanje svih kupovina.", e);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
+    }
+
+    public int addKupovina(Kupovina kupovina) throws prodavnica_exception {
+    Connection con = null;
+    try {
+        con = ResourcesManager.getConnection();
+        con.setAutoCommit(false);
+
+        // Učitaj korisnika i proizvod iz baze preko ID-jeva u kupovini
+        Korisnik korisnik = KorisnikDao.getInstance().findById(kupovina.getKorisnik().getKorisnik_id(), con);
+        Proizvod proizvod = ProizvodDao.getInstance().findById(kupovina.getProizvod().getProizvod_id(), con);
+
+
+        if (korisnik == null) {
+            throw new prodavnica_exception("Korisnik nije pronađen.");
+        }
+        if (proizvod == null) {
+            throw new prodavnica_exception("Proizvod nije pronađen.");
+        }
+
+        // Provera da li korisnik ima dovoljno sredstava
+        if (korisnik.getStanje_racuna() < proizvod.getCena()) {
+            throw new prodavnica_exception("Korisnik nema dovoljno sredstava za kupovinu.");
+        }
+
+        // Provera da li ima dovoljno proizvoda na lageru
+        if (proizvod.getStanje_na_lageru() <= 0) {
+            throw new prodavnica_exception("Proizvod je trenutno rasprodat.");
+        }
+
+        // Umanji iznos na računu korisnika
+        int novoStanje = korisnik.getStanje_racuna() - proizvod.getCena();
+        korisnik.setStanje_racuna(novoStanje);
+        KorisnikDao.getInstance().updateKorisnik(korisnik, con);
+
+        // Umanji količinu proizvoda na lageru
+        int novaKolicina = proizvod.getStanje_na_lageru() - 1;
+        proizvod.setStanje_na_lageru(novaKolicina);
+        ProizvodDao.getInstance().update(proizvod.getProizvod_id(), proizvod, con);
+
+        // Ubaci kupovinu u bazu
+        int kupovina_id = KupovinaDao.getInstance().update(kupovina, con);
+
+        // Potvrdi transakciju
+        con.commit();
+        return kupovina_id;
+
+    } catch (SQLException e) {
+        ResourcesManager.rollbackTransactions(con);
+        throw new prodavnica_exception("Kupovina nije uspešno izvršena.", e);
+    } finally {
+        ResourcesManager.closeConnection(con);
+    }
+}
+
+
+
+
+    public void updateKupovina(Kupovina kupovina) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
             con.setAutoCommit(false);
 
-            if (product.getStanje_na_lageru() == 0) {
-                throw new prodavnica_exception("Nema više proizvoda " + product.getNaziv() + " na lageru.");
-            }
-
-            if (customer.getStanjeRacuna() < product.getCena()) {
-                throw new prodavnica_exception("Korisnik nema dovoljno novca za kupovinu. Stanje: " 
-                    + customer.getStanjeRacuna() + ", cena proizvoda: " + product.getCena());
-            }
-
-            int novoStanje = customer.getStanjeRacuna() - product.getCena();
-            customer.setStanjeRacuna(novoStanje);
-            KorisnikDao.getInstance().update(customer, con);
-
-            int novoPotroseno = customer.getKolicinaPotrosenogNovca() + product.getCena();
-            customer.setKolicinaPotrosenogNovca(novoPotroseno);
-            KorisnikDao.getInstance().updatePotroseno(customer, con);
-
-            product.setStanje_na_lageru(product.getStanje_na_lageru() - 1);
-            ProizvodDao.getInstance().update(product, con);
-
-            Kupovina novaKupovina = new Kupovina(customer.getKorisnik_id(), product.getProizvod_id());
-            KupovinaDao.getInstance().addKupovina(novaKupovina);
+            KupovinaDao.getInstance().update(kupovina, con);
 
             con.commit();
-
-            System.out.println("Korisnik " + customer.getUsername() + " je kupio proizvod " + product.getNaziv() + " po ceni " + product.getCena());
-        } catch (SQLException ex) {
+        } catch (SQLException e) {
             ResourcesManager.rollbackTransactions(con);
-            System.err.println("SQL greška: " + ex.getMessage());
-            throw new prodavnica_exception("Neuspela kupovina", ex);
+            throw new prodavnica_exception("Neuspešno ažuriranje kupovine sa ID " + kupovina.getKupovina_id(), e);
+        } finally {
+            ResourcesManager.closeConnection(con);
         }
     }
-  }
+
+    public void deleteKupovina(int kupovina_id) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            con.setAutoCommit(false);
+
+            KupovinaDao.getInstance().deleteById(kupovina_id, con);
+
+            con.commit();
+        } catch (SQLException e) {
+            ResourcesManager.rollbackTransactions(con);
+            throw new prodavnica_exception("Neuspešno brisanje kupovine sa ID " + kupovina_id, e);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
+    }
+}

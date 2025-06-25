@@ -111,12 +111,12 @@ public class Podesavanje_PretrageDao {
         }
     }
 
-    public void delete(int id, Connection con) throws SQLException {
+    public void delete(int podesavanje_pretrage_id, Connection con) throws SQLException {
         PreparedStatement ps = null;
 
         try {
             ps = con.prepareStatement("DELETE FROM podesavanje_pretrage WHERE podesavanje_pretrage_id = ?");
-            ps.setInt(1, id);
+            ps.setInt(1, podesavanje_pretrage_id);
             ps.executeUpdate();
         } finally {
             ResourcesManager.closeResources(null, ps);

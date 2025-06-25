@@ -11,60 +11,60 @@ package kristina.data;
 import java.io.Serializable;
 
 public class Kupovina implements Serializable {
-    private int kupovina_id = -1;
-    private int korisnik_id;
-    private int proizvod_id;
+    private int kupovina_id;
+    private Korisnik korisnik;   // objekat Korisnik
+    private Proizvod proizvod;   // objekat Proizvod
 
  
     public Kupovina() {
     }
 
     
-    public Kupovina(int kupovina_id, int korisnik_id, int proizvod_id) {
+    // Konstruktor sa svim parametrima
+    public Kupovina(int kupovina_id, Korisnik korisnik, Proizvod proizvod) {
         this.kupovina_id = kupovina_id;
-        this.korisnik_id = korisnik_id;
-        this.proizvod_id = proizvod_id;
+        this.korisnik = korisnik;
+        this.proizvod = proizvod;
     }
 
    
-    public Kupovina(int korisnik_id, int proizvod_id) {
-        this.korisnik_id = korisnik_id;
-        this.proizvod_id = proizvod_id;
+   public Kupovina(Korisnik korisnik, Proizvod proizvod) {
+        this.korisnik = korisnik;
+        this.proizvod = proizvod;
     }
 
+
     
-    public int getkupovina_id() {
+    public int getKupovina_id() {
         return kupovina_id;
     }
 
-    public void setkupovina_id(int kupovina_id) {
+    public void setKupovina_id(int kupovina_id) {
         this.kupovina_id = kupovina_id;
     }
 
-    public int getKorisnik_id() {
-        return korisnik_id;
+    public Korisnik getKorisnik() {
+        return korisnik;
     }
 
-    public void setKorisnik_id(int korisnik_id) {
-        this.korisnik_id = korisnik_id;
+    public void setKorisnik(Korisnik korisnik) {
+        this.korisnik = korisnik;
     }
 
-    public int getProizvod_id() {
-        return proizvod_id;
+    public Proizvod getProizvod() {
+        return proizvod;
     }
 
-    public void setProizvod_id(int proizvod_id) {
-        this.proizvod_id = proizvod_id;
+    public void setProizvod(Proizvod proizvod) {
+        this.proizvod = proizvod;
     }
-
+    
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("kupovina{")
-          .append("kupovina_id=").append(kupovina_id)
-          .append(", korisnik_id=").append(korisnik_id)
-          .append(", proizvod_id=").append(proizvod_id)
-          .append('}');
-        return sb.toString();
+        return "Kupovina{" +
+                "kupovina_id=" + kupovina_id +
+                ", korisnik=" + korisnik +
+                ", proizvod=" + proizvod +
+                '}';
     }
 }

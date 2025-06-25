@@ -1,37 +1,105 @@
 package kristina.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
+import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 import java.util.List;
-import javax.ws.rs.PathParam;
 import kristina.data.Proizvod;
 import kristina.exception.prodavnica_exception;
 import kristina.service.ProizvodService;
 
-@Path("proizvod")
+@Path("/proizvod")
 public class ProizvodRest {
 
     private final ProizvodService proizvodService = ProizvodService.getInstance();
 
+    // GET svi proizvodi
     @GET
-    @Path("/naziv/{naziv}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Proizvod getProizvodByName(@PathParam("naziv") String naziv) throws prodavnica_exception {
-        return proizvodService.findProizvod(naziv);
+    public Response findAllProizvodi() {
+        try {
+            System.out.println("Fetching all proizvodi...");
+            List<Proizvod> proizvodi = proizvodService.findAllProizvodi();
+            return Response.ok(proizvodi).build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Došlo je do neočekivane greške.").build();
+        }
+    }
+  
+    // GET proizvod po ID
+
+    /**
+     *
+     * @param id
+     * @return
+     */
+    @GET
+    @Path("/{id}")
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response findProizvod_id(@PathParam("id") int id) {
+        try {
+            System.out.println("Fetching product with ID: " + id);
+            Proizvod proizvod = ProizvodService.getInstance().findProizvod_id(id);
+            return Response.ok(proizvod).build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.NOT_FOUND).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("An unexpected error occurred.").build();
+        }
     }
 
-    @GET
-    @Path("/id/{proizvodId}")
+    // POST novi proizvod
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public Proizvod getProizvodById(@PathParam("proizvodId") int proizvodId) throws prodavnica_exception {
-        return proizvodService.findProizvod_id(proizvodId);
+    public Response addProizvod(Proizvod proizvod) {
+        try {
+            System.out.println("Dodavanje proizvoda: " + proizvod);
+            int noviId = proizvodService.addNoviProizvod(proizvod);
+            System.out.println("Proizvod dodat sa ID: " + noviId);
+            return Response.status(Response.Status.CREATED)
+                           .entity("Proizvod kreiran sa ID " + noviId)
+                           .build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Došlo je do neočekivane greške.").build();
+        }
     }
 
-    @GET
+    // PUT update proizvoda po ID
+    @PUT
+    @Path("/{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public List<Proizvod> getAllProizvodi() throws prodavnica_exception {
-        return proizvodService.getAllProizvodi();
+    public Response updateProizvod(@PathParam("id") int id, Proizvod proizvod) {
+        try {
+            proizvod.setProizvod_id(id);
+            System.out.println("Ažuriranje proizvoda: " + proizvod);
+            proizvodService.updateProizvod(proizvod);
+            System.out.println("Proizvod ažuriran sa ID: " + id);
+            return Response.ok("Proizvod sa ID " + id + " je ažuriran.").build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                           .entity("Došlo je do neočekivane greške.").build();
+        }
     }
+
+  // DELETE proizvod po nazivu
+@DELETE
+@Path("/naziv/{naziv}")
+@Produces(MediaType.APPLICATION_JSON)
+public Response deleteProizvod(@PathParam("naziv") String naziv) throws prodavnica_exception {
+    System.out.println("Brisanje proizvoda sa nazivom: " + naziv);
+    proizvodService.deleteProizvodByName(naziv);
+    System.out.println("Proizvod obrisan sa nazivom: " + naziv);
+    return Response.ok("Proizvod pod nazivom " + naziv + " obrisan.").build();
+}
+
 }

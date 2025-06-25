@@ -30,6 +30,8 @@ public class ApplicationConfig extends Application {
     private void addRestResourceClasses(Set<Class<?>> resources) {
         resources.add(kristina.rest.KorisnikRest.class);
         resources.add(kristina.rest.KupovinaRest.class);
+        resources.add(kristina.rest.PodesavanjePretrageRest.class);
+        resources.add(kristina.rest.PretragaRest.class);
         resources.add(kristina.rest.ProizvodRest.class);
     }
     
