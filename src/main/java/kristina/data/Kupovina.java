@@ -27,6 +27,7 @@ public class Kupovina implements Serializable {
         this.proizvod = proizvod;
     }
 
+
    
    public Kupovina(Korisnik korisnik, Proizvod proizvod) {
         this.korisnik = korisnik;

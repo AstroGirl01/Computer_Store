@@ -48,19 +48,22 @@ public class PodesavanjePretrageRest {
         }
     }
 
-    @POST
-    @Consumes(MediaType.APPLICATION_JSON)
-    @Produces(MediaType.APPLICATION_JSON)
-    public Response addPodesavanjePretrage(Podesavanje_Pretrage podesavanje) {
-        try {
-            int newId = PodesavanjePretrageService.getInstance().addPodesavanjePretrage(podesavanje);
-            return Response.status(Response.Status.CREATED).entity("Podešavanje pretrage kreirano sa ID " + newId).build();
-        } catch (prodavnica_exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
-        } catch (Exception e) {
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Neočekivana greška.").build();
-        }
+@POST
+@Consumes(MediaType.APPLICATION_JSON)
+@Produces(MediaType.APPLICATION_JSON)
+public Response addPodesavanjePretrage(Podesavanje_Pretrage podesavanje) {
+    try {
+        int newId = PodesavanjePretrageService.getInstance().addPodesavanjePretrage(podesavanje);
+        return Response.status(Response.Status.CREATED).entity("Podešavanje pretrage kreirano sa ID " + newId).build();
+    } catch (prodavnica_exception e) {
+        e.printStackTrace(); // DODATO
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
+    } catch (Exception e) {
+        e.printStackTrace(); // DODATO
+        return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Neočekivana greška.").build();
     }
+}
+
 
     @PUT
     @Path("/{id}")

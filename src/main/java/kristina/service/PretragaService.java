@@ -13,7 +13,8 @@ public class PretragaService {
 
     private static final PretragaService instance = new PretragaService();
 
-    private PretragaService() {}
+    private PretragaService() {
+    }
 
     public static PretragaService getInstance() {
         return instance;
@@ -94,4 +95,4 @@ public class PretragaService {
             ResourcesManager.closeConnection(con);
         }
     }
-} 
+}

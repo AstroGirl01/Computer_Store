@@ -5,83 +5,76 @@ import java.util.ArrayList;
 import java.util.List;
 import kristina.data.Pretraga;
 import kristina.data.Korisnik;
-import kristina.data.Podesavanje_Pretrage;     
-import kristina.dao.KorisnikDao;
-import kristina.dao.Podesavanje_PretrageDao;    
-
+import kristina.data.Podesavanje_Pretrage;
 
 public class PretragaDao {
 
     private static final PretragaDao instance = new PretragaDao();
 
-    private PretragaDao() {}
+    private PretragaDao() {
+    }
 
     public static PretragaDao getInstance() {
         return instance;
     }
 
     public Pretraga find(int pretraga_id, Connection con) throws SQLException {
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    Pretraga pretraga = null;
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        Pretraga pretraga = null;
 
-    try {
-        ps = con.prepareStatement("SELECT * FROM pretraga WHERE pretraga_id=?");
-        ps.setInt(1, pretraga_id);
-        rs = ps.executeQuery();
+        try {
+            ps = con.prepareStatement("SELECT * FROM pretraga WHERE pretraga_id=?");
+            ps.setInt(1, pretraga_id);
+            rs = ps.executeQuery();
 
-        if (rs.next()) {
-            // Učitaj ID-jeve
-            int korisnikId = rs.getInt("korisnik_id");
-            int podesavanjeId = rs.getInt("podesavanje_pretrage_id");
+            if (rs.next()) {
 
-            // Učitaj povezane objekte pomoću DAO-a
-            Korisnik korisnik = KorisnikDao.getInstance().findById(korisnikId, con);
-            Podesavanje_Pretrage podesavanje = Podesavanje_PretrageDao.getInstance().find(pretraga_id, con);
+                int korisnikId = rs.getInt("korisnik_id");
+                int podesavanjeId = rs.getInt("podesavanje_pretrage_id");
 
-            // Kreiraj objekat Pretraga sa pravim objektima
-            pretraga = new Pretraga(
-                rs.getInt("pretraga_id"),
-                korisnik,
-                podesavanje
-            );
+                Korisnik korisnik = KorisnikDao.getInstance().findById(korisnikId, con);
+                Podesavanje_Pretrage podesavanje = Podesavanje_PretrageDao.getInstance().find(pretraga_id, con);
+
+                pretraga = new Pretraga(
+                        rs.getInt("pretraga_id"),
+                        korisnik,
+                        podesavanje
+                );
+            }
+        } finally {
+            ResourcesManager.closeResources(rs, ps);
         }
-    } finally {
-        ResourcesManager.closeResources(rs, ps);
+
+        return pretraga;
     }
-
-    return pretraga;
-}
-
 
     public List<Pretraga> findAll(Connection con) throws SQLException {
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    List<Pretraga> pretrage = new ArrayList<>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        List<Pretraga> pretrage = new ArrayList<>();
 
-    try {
-        ps = con.prepareStatement("SELECT * FROM pretraga");
-        rs = ps.executeQuery();
+        try {
+            ps = con.prepareStatement("SELECT * FROM pretraga");
+            rs = ps.executeQuery();
 
-        while (rs.next()) {
-            // Učitaj povezane objekte preko ID-jeva iz tabele
-            Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("korisnik_id"), con);
-            Podesavanje_Pretrage podesavanje = Podesavanje_PretrageDao.getInstance().find(rs.getInt("podesavanje_pretrage_id"), con);
+            while (rs.next()) {
 
-            // Dodaj novu instancu Pretraga sa objektima
-            pretrage.add(new Pretraga(
-                    rs.getInt("pretraga_id"),
-                    korisnik,
-                    podesavanje
-            ));
+                Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("korisnik_id"), con);
+                Podesavanje_Pretrage podesavanje = Podesavanje_PretrageDao.getInstance().find(rs.getInt("podesavanje_pretrage_id"), con);
+
+                pretrage.add(new Pretraga(
+                        rs.getInt("pretraga_id"),
+                        korisnik,
+                        podesavanje
+                ));
+            }
+        } finally {
+            ResourcesManager.closeResources(rs, ps);
         }
-    } finally {
-        ResourcesManager.closeResources(rs, ps);
+
+        return pretrage;
     }
-
-    return pretrage;
-}
-
 
     public int insert(Pretraga pretraga, Connection con) throws SQLException {
         PreparedStatement ps = null;
@@ -94,7 +87,6 @@ public class PretragaDao {
             );
             ps.setInt(1, pretraga.getPodesavanje_pretrage().getPodesavanje_pretrage_id());
             ps.setInt(2, pretraga.getKorisnik().getKorisnik_id());
-
 
             ps.executeUpdate();
             rs = ps.getGeneratedKeys();

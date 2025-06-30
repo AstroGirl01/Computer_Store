@@ -17,24 +17,24 @@ public class KupovinaService {
 
     private static final KupovinaService instance = new KupovinaService();
 
-    private KupovinaService() {}
+    private KupovinaService() {
+    }
 
     public static KupovinaService getInstance() {
         return instance;
     }
 
-   public Kupovina getKupovinaById(int kupovina_id) throws prodavnica_exception {
-    Connection con = null;
-    try {
-        con = ResourcesManager.getConnection();
-        return KupovinaDao.getInstance().findById(kupovina_id, con);
-    } catch (SQLException e) {
-        throw new prodavnica_exception("Neuspešno dohvaćanje kupovine sa ID " + kupovina_id, e);
-    } finally {
-        ResourcesManager.closeConnection(con);
+    public Kupovina getKupovinaById(int kupovina_id) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            return KupovinaDao.getInstance().findById(kupovina_id, con);
+        } catch (SQLException e) {
+            throw new prodavnica_exception("Neuspešno dohvaćanje kupovine sa ID " + kupovina_id, e);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
     }
-}
-
 
     public List<Kupovina> getAllKupovine() throws prodavnica_exception {
         Connection con = null;
@@ -49,60 +49,46 @@ public class KupovinaService {
     }
 
     public int addKupovina(Kupovina kupovina) throws prodavnica_exception {
-    Connection con = null;
-    try {
-        con = ResourcesManager.getConnection();
-        con.setAutoCommit(false);
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            con.setAutoCommit(false);
 
-        // Učitaj korisnika i proizvod iz baze preko ID-jeva u kupovini
-        Korisnik korisnik = KorisnikDao.getInstance().findById(kupovina.getKorisnik().getKorisnik_id(), con);
-        Proizvod proizvod = ProizvodDao.getInstance().findById(kupovina.getProizvod().getProizvod_id(), con);
+            Korisnik korisnik = KorisnikDao.getInstance().findById(kupovina.getKorisnik().getKorisnik_id(), con);
+            Proizvod proizvod = ProizvodDao.getInstance().findById(kupovina.getProizvod().getProizvod_id(), con);
 
+            // Provera da li korisnik ima dovoljno sredstava
+            if (korisnik.getStanje_racuna() < proizvod.getCena()) {
+                throw new prodavnica_exception("Korisnik nema dovoljno sredstava za kupovinu.");
+            }
 
-        if (korisnik == null) {
-            throw new prodavnica_exception("Korisnik nije pronađen.");
+            // Provera da li ima dovoljno proizvoda na lageru
+            if (proizvod.getStanje_na_lageru() <= 0) {
+                throw new prodavnica_exception("Proizvod je trenutno rasprodat.");
+            }
+
+            // Umanji iznos na računu korisnika
+            int novoStanje = korisnik.getStanje_racuna() - proizvod.getCena();
+            korisnik.setStanje_racuna(novoStanje);
+            KorisnikDao.getInstance().update(korisnik, con);
+
+            // Umanji količinu proizvoda na lageru
+            int novaKolicina = proizvod.getStanje_na_lageru() - 1;
+            proizvod.setStanje_na_lageru(novaKolicina);
+            ProizvodDao.getInstance().update(proizvod, con);
+
+            int kupovinaId = KupovinaDao.getInstance().insert(kupovina, con);
+
+            con.commit();
+            return kupovinaId;
+
+        } catch (SQLException e) {
+            ResourcesManager.rollbackTransactions(con);
+            throw new prodavnica_exception("Kupovina nije uspešno izvršena.", e);
+        } finally {
+            ResourcesManager.closeConnection(con);
         }
-        if (proizvod == null) {
-            throw new prodavnica_exception("Proizvod nije pronađen.");
-        }
-
-        // Provera da li korisnik ima dovoljno sredstava
-        if (korisnik.getStanje_racuna() < proizvod.getCena()) {
-            throw new prodavnica_exception("Korisnik nema dovoljno sredstava za kupovinu.");
-        }
-
-        // Provera da li ima dovoljno proizvoda na lageru
-        if (proizvod.getStanje_na_lageru() <= 0) {
-            throw new prodavnica_exception("Proizvod je trenutno rasprodat.");
-        }
-
-        // Umanji iznos na računu korisnika
-        int novoStanje = korisnik.getStanje_racuna() - proizvod.getCena();
-        korisnik.setStanje_racuna(novoStanje);
-        KorisnikDao.getInstance().update(korisnik, con);
-
-        // Umanji količinu proizvoda na lageru
-        int novaKolicina = proizvod.getStanje_na_lageru() - 1;
-        proizvod.setStanje_na_lageru(novaKolicina);
-        ProizvodDao.getInstance().update(proizvod, con);
-
-        // Ubaci kupovinu u bazu
-        int kupovina_id = KupovinaDao.getInstance().insert(kupovina, con);
-
-        // Potvrdi transakciju
-        con.commit();
-        return kupovina_id;
-
-    } catch (SQLException e) {
-        ResourcesManager.rollbackTransactions(con);
-        throw new prodavnica_exception("Kupovina nije uspešno izvršena.", e);
-    } finally {
-        ResourcesManager.closeConnection(con);
     }
-}
-
-
-
 
     public void updateKupovina(Kupovina kupovina) throws prodavnica_exception {
         Connection con = null;

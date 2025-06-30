@@ -1,9 +1,6 @@
 package kristina.rest;
 
 import kristina.data.Kupovina;
-import kristina.data.Korisnik;
-import kristina.data.Proizvod;
-
 import kristina.exception.prodavnica_exception;
 import kristina.service.KupovinaService;
 
@@ -42,21 +39,21 @@ public class KupovinaRest {
         }
     }
 
-        @POST
-     @Consumes(MediaType.APPLICATION_JSON)
-     @Produces(MediaType.APPLICATION_JSON)
-     public Response addKupovina(Kupovina kupovina) {
-         try {
-             int newId = KupovinaService.getInstance().addKupovina(kupovina);
-             return Response.status(Response.Status.CREATED)
-                            .entity("Kupovina kreirana sa ID " + newId)
-                            .build();
-         } catch (prodavnica_exception e) {
-             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity("Neočekivana greška pri kreiranju kupovine.")
-                            .build();
-         }
-     }
+    @POST
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response addKupovina(Kupovina kupovina) {
+        try {
+            int newId = KupovinaService.getInstance().addKupovina(kupovina);
+            return Response.status(Response.Status.CREATED)
+                    .entity("Kupovina kreirana sa ID " + newId)
+                    .build();
+        } catch (prodavnica_exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Neočekivana greška pri kreiranju kupovine.")
+                    .build();
+        }
+    }
 
     @PUT
     @Path("/{id}")

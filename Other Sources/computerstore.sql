@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jun 25, 2025 at 09:33 AM
+-- Generation Time: Jun 29, 2025 at 04:40 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.0.30
 
@@ -31,6 +31,7 @@ CREATE TABLE `korisnik` (
   `korisnik_id` int(11) NOT NULL,
   `ime_i_prezime` varchar(64) NOT NULL,
   `username` varchar(45) NOT NULL,
+  `password` varchar(64) NOT NULL,
   `e_mail` varchar(64) NOT NULL,
   `datum_rodjenja` varchar(20) NOT NULL,
   `stanje_racuna` bigint(20) NOT NULL,
@@ -41,9 +42,9 @@ CREATE TABLE `korisnik` (
 -- Dumping data for table `korisnik`
 --
 
-INSERT INTO `korisnik` (`korisnik_id`, `ime_i_prezime`, `username`, `e_mail`, `datum_rodjenja`, `stanje_racuna`, `kolicina_potrosenog_novca`) VALUES
-(1, 'Kristina Spasojevic', 'kristina', 'kristina@example.com', '03.01.2001.', 7500, 10000),
-(2, 'Marija Markovic', 'marija', 'marija@example.com', '10.06.1993.', 8500, 3000);
+INSERT INTO `korisnik` (`korisnik_id`, `ime_i_prezime`, `username`, `password`, `e_mail`, `datum_rodjenja`, `stanje_racuna`, `kolicina_potrosenog_novca`) VALUES
+(1, 'Kristina Spasojevic', 'kristina', '', 'kristina@example.com', '03.01.2001.', 7500, 10000),
+(2, 'Marija Markovic', 'marija', '', 'marija@example.com', '10.06.1993.', 8500, 3000);
 
 -- --------------------------------------------------------
 

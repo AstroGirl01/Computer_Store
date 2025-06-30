@@ -15,17 +15,20 @@ public class KorisnikService {
     private static final KorisnikService instance = new KorisnikService();
     private final KorisnikDao korisnikDAO = KorisnikDao.getInstance();
 
-    private KorisnikService() {}
+    private KorisnikService() {
+    }
 
     public static KorisnikService getInstance() {
         return instance;
     }
+// Vrati sve korisnike
 
     public List<Korisnik> getAllKorisnici() throws prodavnica_exception {
-        return korisnikDAO.getAllKorisnici();  
+        return korisnikDAO.getAllKorisnici();
     }
 
-    public Korisnik findKorisnik(String username) throws prodavnica_exception {
+    // Vrati korisnika po username-u
+    public Korisnik findByUsername(String username) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
@@ -36,8 +39,9 @@ public class KorisnikService {
             ResourcesManager.closeConnection(con);
         }
     }
+// Vrati korisnika po ID-u
 
-    public Korisnik findKorisnik_id(int id) throws prodavnica_exception {
+    public Korisnik findKorisnikByID(int id) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
@@ -48,26 +52,27 @@ public class KorisnikService {
             ResourcesManager.closeConnection(con);
         }
     }
+// Dodaj novog korisnika u bazu
 
- public int addKorisnik(Korisnik k) throws prodavnica_exception {
-    Connection con = null;
-    try {
-        con = ResourcesManager.getConnection();
-        con.setAutoCommit(false);
+    public int addKorisnik(Korisnik k) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            con.setAutoCommit(false);
 
-        int korisnikId = korisnikDAO.registracija(k, con); // sada metoda vraća ID
+            int korisnikId = korisnikDAO.insertKorisnik(k, con);
 
-        con.commit();
-        return korisnikId;
-    } catch (SQLException ex) {
-        ResourcesManager.rollbackTransactions(con);
-        throw new prodavnica_exception("Greška prilikom dodavanja korisnika: " + k, ex);
-    } finally {
-        ResourcesManager.closeConnection(con);
+            con.commit();
+            return korisnikId;
+        } catch (SQLException ex) {
+            ResourcesManager.rollbackTransactions(con);
+            throw new prodavnica_exception("Greška prilikom dodavanja korisnika: " + k, ex);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
     }
-}
 
-
+    // Uloguj se sa username-om i passwordom
     public String login(String username, String password) throws prodavnica_exception {
         Connection con = null;
         try {
@@ -80,30 +85,13 @@ public class KorisnikService {
         }
     }
 
-    public String login(String username, String password, Connection con) throws SQLException {
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
-        try {
-            preparedStatement = con.prepareStatement("SELECT ime_i_prezime FROM korisnik WHERE username = ? AND password = ?");
-            preparedStatement.setString(1, username);
-            preparedStatement.setString(2, password);
-            resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                String imeIPrezime = resultSet.getString("ime_i_prezime");
-                return "Dobrodošao u najjaču računarsku prodavnicu " + imeIPrezime;
-            }
-            return null;
-        } finally {
-            ResourcesManager.closeResources(resultSet, preparedStatement);
-        }
-    }
-
+// Azuriraj podatke korisnika
     public void updateKorisnik(Korisnik korisnik) throws prodavnica_exception {
         Connection con = null;
         try {
             con = ResourcesManager.getConnection();
             con.setAutoCommit(false);
-        korisnikDAO.updateAllFields(korisnik.getUsername(), korisnik, con);
+            korisnikDAO.updatePodatke(korisnik.getUsername(), korisnik, con);
             con.commit();
         } catch (SQLException ex) {
             ResourcesManager.rollbackTransactions(con);
@@ -113,12 +101,25 @@ public class KorisnikService {
         }
     }
 
-public void deleteKorisnik(String username) throws prodavnica_exception {
-    try (Connection con = ResourcesManager.getConnection()) {
-        KorisnikDao.getInstance().deleteByUsername(username, con);
-    } catch (SQLException e) {
-        throw new prodavnica_exception("Greška prilikom brisanja korisnika", e);
-    }
-}
+    // Obrisi korisnika po username-u
+    public void deleteKorisnik(String username) throws prodavnica_exception {
+        Connection con = null;
+        try {
+            con = ResourcesManager.getConnection();
+            con.setAutoCommit(false);
 
-}        
+            int affectedRows = korisnikDAO.getInstance().deleteByUsername(username, con);
+            if (affectedRows == 0) {
+                throw new prodavnica_exception("Korisnik sa username-om '" + username + "' ne postoji.");
+            }
+
+            con.commit();
+        } catch (SQLException e) {
+            ResourcesManager.rollbackTransactions(con);
+            throw new prodavnica_exception("Greška prilikom brisanja korisnika iz baze.", e);
+        } finally {
+            ResourcesManager.closeConnection(con);
+        }
+    }
+
+}

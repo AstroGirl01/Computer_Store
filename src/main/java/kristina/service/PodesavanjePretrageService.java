@@ -43,7 +43,7 @@ public class PodesavanjePretrageService {
         }
     }
 
-    public int addPodesavanjePretrage(Podesavanje_Pretrage podesavanje) throws prodavnica_exception {
+public int addPodesavanjePretrage(Podesavanje_Pretrage podesavanje) throws prodavnica_exception {
     Connection con = null;
     try {
         con = ResourcesManager.getConnection();
@@ -54,12 +54,14 @@ public class PodesavanjePretrageService {
         con.commit();
         return podesavanjeId;
     } catch (SQLException e) {
+        e.printStackTrace(); // DODATO
         ResourcesManager.rollbackTransactions(con);
         throw new prodavnica_exception("Greška prilikom dodavanja podešavanja pretrage.", e);
     } finally {
         ResourcesManager.closeConnection(con);
     }
 }
+
 
 
     public void updatePodesavanjePretrage(Podesavanje_Pretrage pp) throws prodavnica_exception {
@@ -86,6 +88,7 @@ public class PodesavanjePretrageService {
 
             Podesavanje_PretrageDao.getInstance().delete(podesavanje_pretrage_id, con);
             con.commit();
+            
         } catch (SQLException e) {
             ResourcesManager.rollbackTransactions(con);
             throw new prodavnica_exception("Greška prilikom brisanja podešavanja pretrage sa ID " + podesavanje_pretrage_id, e);

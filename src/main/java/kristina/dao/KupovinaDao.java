@@ -12,103 +12,94 @@ public class KupovinaDao {
 
     private static final KupovinaDao instance = new KupovinaDao();
 
-    private KupovinaDao() {}
+    private KupovinaDao() {
+    }
 
     public static KupovinaDao getInstance() {
         return instance;
     }
 
-     // Pronalazi kupovinu po ID-u koristeći postojeću konekciju
-public Kupovina findById(int kupovina_id, Connection con) throws SQLException, prodavnica_exception {
-    String sql = "SELECT * FROM kupovina WHERE kupovina_id = ?";
-    Kupovina kupovina = null;
+    public Kupovina findById(int kupovina_id, Connection con) throws SQLException, prodavnica_exception {
+        String sql = "SELECT * FROM kupovina WHERE id_kupovina = ?";
+        Kupovina kupovina = null;
 
-    try (PreparedStatement ps = con.prepareStatement(sql)) {
-        ps.setInt(1, kupovina_id);
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                // Učitavanje povezanih objekata
-                Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("korisnik_id"), con);
-                Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("proizvod_id"), con);
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, kupovina_id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
 
-                // Kreiranje objekta Kupovina sa punim objektima korisnika i proizvoda
-                kupovina = new Kupovina();
-                kupovina.setKupovina_id(rs.getInt("kupovina_id"));
-                kupovina.setKorisnik(korisnik);    // postavlja ceo objekat Korisnik
-                kupovina.setProizvod(proizvod);    // postavlja ceo objekat Proizvod
+                    Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("fk_korisnik"), con);
+                    Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("fk_proizvod"), con);
+
+                    kupovina = new Kupovina();
+                    kupovina.setKupovina_id(rs.getInt("id_kupovina"));
+                    kupovina.setKorisnik(korisnik);
+                    kupovina.setProizvod(proizvod);
+                }
             }
         }
+
+        return kupovina;
     }
 
-    return kupovina;
-}
+    public List<Kupovina> findAllKupovine(Connection con) throws SQLException, prodavnica_exception {
+        String sql = "SELECT * FROM kupovina";
+        List<Kupovina> kupovine = new ArrayList<>();
 
-    // Vraća sve kupovine iz baze
-     // Pronalazi sve kupovine
-public List<Kupovina> findAllKupovine(Connection con) throws SQLException, prodavnica_exception {
-    String sql = "SELECT * FROM kupovina";
-    List<Kupovina> kupovine = new ArrayList<>();
+        try (PreparedStatement ps = con.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
-    try (PreparedStatement ps = con.prepareStatement(sql);
-         ResultSet rs = ps.executeQuery()) {
-
-        while (rs.next()) {
-            Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("korisnik_id"), con);
-            Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("proizvod_id"), con);
-
-            Kupovina kupovina = new Kupovina();
-            kupovina.setKupovina_id(rs.getInt("kupovina_id"));
-            kupovina.setKorisnik(korisnik);   // setuj ceo objekat korisnik
-            kupovina.setProizvod(proizvod);   // setuj ceo objekat proizvod
-
-            kupovine.add(kupovina);
-        }
-    }
-
-    return kupovine;
-}
-
-
- public List<Kupovina> findByKorisnikId(int korisnik_id) throws prodavnica_exception {
-    List<Kupovina> kupovine = new ArrayList<>();
-    String sql = "SELECT * FROM kupovina WHERE korisnik_id = ?";
-
-    try (Connection con = ResourcesManager.getConnection();
-         PreparedStatement ps = con.prepareStatement(sql)) {
-
-        ps.setInt(1, korisnik_id);
-
-        try (ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
-                // Uzimamo korisnika i proizvod iz baze koristeći njihove DAO klase i ID-jeve iz ResultSeta
-                Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("korisnik_id"), con);
-                Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("proizvod_id"), con);
+                Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("fk_korisnik"), con);
+                Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("fk_proizvod"), con);
 
-                // Kreiramo Kupovina objekat sa korisnikom i proizvodom kao objektima
-                Kupovina k = new Kupovina();
-                k.setKupovina_id(rs.getInt("kupovina_id"));
-                k.setKorisnik(korisnik);
-                k.setProizvod(proizvod);
+                Kupovina kupovina = new Kupovina();
+                kupovina.setKupovina_id(rs.getInt("id_kupovina"));
+                kupovina.setKorisnik(korisnik);
+                kupovina.setProizvod(proizvod);
 
-                kupovine.add(k);
+                kupovine.add(kupovina);
             }
         }
-    } catch (SQLException e) {
-        throw new prodavnica_exception("Greška prilikom pronalaženja kupovina po korisnik_id", e);
+
+        return kupovine;
     }
 
-    return kupovine;
-}
+    public List<Kupovina> findByKorisnikId(int korisnik_id) throws prodavnica_exception {
+        List<Kupovina> kupovine = new ArrayList<>();
+        String sql = "SELECT * FROM kupovina WHERE fk_korisnik = ?";
 
-    // Dodaje novu kupovinu u bazu i postavlja generisani ID nazad u objekat
+        try (Connection con = ResourcesManager.getConnection(); PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, korisnik_id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+
+                    Korisnik korisnik = KorisnikDao.getInstance().findById(rs.getInt("fk_korisnik"), con);
+                    Proizvod proizvod = ProizvodDao.getInstance().findById(rs.getInt("fk_proizvod"), con);
+
+                    Kupovina k = new Kupovina();
+                    k.setKupovina_id(rs.getInt("id_kupovina"));
+                    k.setKorisnik(korisnik);
+                    k.setProizvod(proizvod);
+
+                    kupovine.add(k);
+                }
+            }
+        } catch (SQLException e) {
+            throw new prodavnica_exception("Greška prilikom pronalaženja kupovina po korisnik_id", e);
+        }
+
+        return kupovine;
+    }
+
     public void addKupovina(Kupovina kupovina) throws prodavnica_exception {
-        String sql = "INSERT INTO kupovina (korisnik_id, proizvod_id) VALUES (?, ?)";
+        String sql = "INSERT INTO kupovina (fk_korisnik, fk_proizvod) VALUES (?, ?)";
 
-        try (Connection con = ResourcesManager.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection con = ResourcesManager.getConnection(); PreparedStatement ps = con.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
-         ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
-         ps.setInt(2, kupovina.getProizvod().getProizvod_id());
+            ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
+            ps.setInt(2, kupovina.getProizvod().getProizvod_id());
 
             int affectedRows = ps.executeUpdate();
             if (affectedRows == 0) {
@@ -127,53 +118,45 @@ public List<Kupovina> findAllKupovine(Connection con) throws SQLException, proda
         }
     }
 
-  public int insert(Kupovina kupovina, Connection con) throws SQLException {
-    PreparedStatement ps = null;
-    ResultSet rs = null;
-    int id = -1;
-    try {
-        ps = con.prepareStatement(
-            "INSERT INTO kupovina (korisnik_id, proizvod_id) VALUES (?, ?)",
-            Statement.RETURN_GENERATED_KEYS
-        );
-        ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
-        ps.setInt(2, kupovina.getProizvod().getProizvod_id());
-        ps.executeUpdate();
-
-        rs = ps.getGeneratedKeys();
-        if (rs.next()) {
-            id = rs.getInt(1);
+    public int insert(Kupovina kupovina, Connection con) throws SQLException {
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        int id = -1;
+        try {
+            ps = con.prepareStatement(
+                    "INSERT INTO kupovina (fk_korisnik, fk_proizvod) VALUES (?, ?)",
+                    Statement.RETURN_GENERATED_KEYS
+            );
+            ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
+            ps.setInt(2, kupovina.getProizvod().getProizvod_id());
+            ps.executeUpdate();
+            rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                id = rs.getInt(1);
+            }
+        } finally {
+            ResourcesManager.closeResources(rs, ps);
         }
-    } finally {
-        ResourcesManager.closeResources(rs, ps);
+        return id;
     }
-    return id;
-}
 
-public void update(Kupovina kupovina, Connection con) throws SQLException {
-    PreparedStatement ps = null;
-    try {
-        ps = con.prepareStatement(
-            "UPDATE kupovina SET korisnik_id = ?, proizvod_id = ? WHERE kupovina_id = ?"
-        );
-        ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
-        ps.setInt(2, kupovina.getProizvod().getProizvod_id());
-        ps.setInt(3, kupovina.getKupovina_id());
-        ps.executeUpdate();
-    } finally {
-        ResourcesManager.closeResources(null, ps);
+    public void update(Kupovina kupovina, Connection con) throws SQLException {
+        PreparedStatement ps = null;
+        try {
+            ps = con.prepareStatement(
+                    "UPDATE kupovina SET fk_korisnik = ?, fk_proizvod = ? WHERE id_kupovina = ?"
+            );
+            ps.setInt(1, kupovina.getKorisnik().getKorisnik_id());
+            ps.setInt(2, kupovina.getProizvod().getProizvod_id());
+            ps.setInt(3, kupovina.getKupovina_id());
+            ps.executeUpdate();
+        } finally {
+            ResourcesManager.closeResources(null, ps);
+        }
     }
-}
 
-
-
-
-
-    // Briše kupovinu po ID-u
-    
-    // Briše kupovinu po ID-u
     public void deleteById(int kupovina_id, Connection con) throws SQLException {
-        String sql = "DELETE FROM kupovina WHERE kupovina_id = ?";
+        String sql = "DELETE FROM kupovina WHERE id_kupovina = ?";
 
         try (PreparedStatement ps = con.prepareStatement(sql)) {
             ps.setInt(1, kupovina_id);
@@ -181,8 +164,4 @@ public void update(Kupovina kupovina, Connection con) throws SQLException {
         }
     }
 
-    }
-    
-
-    // Helper metoda za mapiranje ResultSet-a u objekat Kupovina
-    
+}
